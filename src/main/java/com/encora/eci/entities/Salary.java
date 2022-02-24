@@ -5,16 +5,16 @@ import lombok.Data;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Data
 @Entity
-public class EmployeePosition implements Serializable {
+public class Salary implements Serializable {
 
     @Id
-    private long employeeNumber;
+    private long EmployeeNumber;
     @Id
-    private String positionName;
+    private double salary;
     @Id
-    private Date date;
+    private LocalDate date;
 }
