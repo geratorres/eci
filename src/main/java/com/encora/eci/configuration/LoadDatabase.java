@@ -1,93 +1,73 @@
 package com.encora.eci.configuration;
 
 import com.encora.eci.entities.Employee;
+import com.encora.eci.entities.EmployeePosition;
+import com.encora.eci.exceptions.inner.EmployeeRequiredException;
+import com.encora.eci.repositories.EmployeePositionRepository;
 import com.encora.eci.repositories.EmployeeRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import com.encora.eci.services.EmployeeService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.util.Calendar;
+import java.time.Month;
+import java.util.ArrayList;
 import java.util.List;
 
-@Configuration
+@Slf4j
+@Component
+@ConditionalOnProperty(name = "bootstrapping.data", havingValue = "true")
 class LoadDatabase {
 
-    private static final Logger log = LoggerFactory.getLogger(LoadDatabase.class);
+    private EmployeeRepository employeeRepository;
+    private EmployeePositionRepository employeePositionRepository;
 
-    //@Bean
-    CommandLineRunner initDatabase(EmployeeRepository repository) {
+    private static List<Employee> createNEmployees(int count) {
+        List<Employee> employeeList = new ArrayList<>(count);
+        count = count % 32;
 
-        Employee employee;
-        Employee employee2;
-        Employee employee3;
-        Employee employee4;
-        Employee employee5;
+        for (int i = 1; i <= count; i++) {
+            employeeList.add(new Employee(
+                    i,
+                    "John" + i,
+                    "Smith" + i,
+                    "Male",
+                    i + " washington st.",
+                    "Chihuahua",
+                    "Mexico",
+                    "jhon.smith" + i + "@encora.com",
+                    "jsmith" + i + "@gmail.com",
+                    String.valueOf(i * 11111111),
+                    LocalDate.of(1993, Month.MARCH, i),
+                    null, 0, false)
+            );
+        }
 
-        employee = new Employee();
-        employee.setFirstName("John");
-        employee.setLastName("Smith");
-        employee.setState("Chihuahua");
-        employee.setCountry("Mexico");
-        employee.setAddress("1 washington st.");
-        employee.setBirthday(LocalDate.of(1993, Calendar.FEBRUARY, 1));
-        employee.setCompanyEmail("jhon.smith@encora.com");
-        employee.setPersonalEmail("jsmith@gmail.com");
-        employee.setGender("MALE");
-        employee.setPhoneNumber("111111111");
+        return employeeList;
+    }
 
-        employee2 = new Employee();
-        employee2.setFirstName("John2");
-        employee2.setLastName("Smith2");
-        employee2.setState("Chihuahua");
-        employee2.setCountry("Mexico");
-        employee2.setAddress("2 washington st.");
-        employee2.setBirthday(LocalDate.of(1993, Calendar.FEBRUARY, 1));
-        employee2.setCompanyEmail("jhon.smith2@encora.com");
-        employee2.setPersonalEmail("jsmith2@gmail.com");
-        employee2.setGender("MALE");
-        employee2.setPhoneNumber("2222222");
+    public LoadDatabase(EmployeeRepository employeeRepository, EmployeePositionRepository employeePositionRepository) {
+        this.employeeRepository = employeeRepository;
+        this.employeePositionRepository = employeePositionRepository;
+    }
 
-        employee3 = new Employee();
-        employee3.setFirstName("John3");
-        employee3.setLastName("Smith3");
-        employee3.setState("Chihuahua");
-        employee3.setCountry("Mexico");
-        employee3.setAddress("3 washington st.");
-        employee3.setBirthday(LocalDate.of(1993, Calendar.FEBRUARY, 2));
-        employee3.setCompanyEmail("jhon.smith3@encora.com");
-        employee3.setPersonalEmail("jsmith3@gmail.com");
-        employee3.setGender("MALE");
-        employee3.setPhoneNumber("33333333");
+    @EventListener
+    void initDatabase(ApplicationReadyEvent applicationReadyEvent) throws EmployeeRequiredException {
 
-        employee4 = new Employee();
-        employee4.setFirstName("John4");
-        employee4.setLastName("Smith4");
-        employee4.setState("Chihuahua");
-        employee4.setCountry("Mexico");
-        employee4.setAddress("123 washington st.");
-        employee4.setBirthday(LocalDate.of(1993, Calendar.FEBRUARY, 3));
-        employee4.setCompanyEmail("jhon.smith4@encora.com");
-        employee4.setPersonalEmail("jsmith4@gmail.com");
-        employee4.setGender("MALE");
-        employee4.setPhoneNumber("444444444");
+        if (employeeRepository.count() == 0) {
 
-        employee5 = new Employee();
-        employee5.setFirstName("John5");
-        employee5.setLastName("Smith5");
-        employee5.setState("Chihuahua");
-        employee5.setCountry("Mexico");
-        employee5.setAddress("5 washington st.");
-        employee5.setBirthday(LocalDate.of(1993, Calendar.FEBRUARY, 3));
-        employee5.setCompanyEmail("jhon.smith5@encora.com");
-        employee5.setPersonalEmail("jsmith5@gmail.com");
-        employee5.setGender("MALE");
-        employee5.setPhoneNumber("5555555");
+            log.info("Inserting positions");
 
-        List<Employee> employeeList = List.of(employee, employee2, employee3, employee4, employee5);
+            EmployeePosition developer = employeePositionRepository.save(new EmployeePosition("developer"));
+            EmployeePosition qa = employeePositionRepository.save(new EmployeePosition("tester"));
+            EmployeePosition finance = employeePositionRepository.save(new EmployeePosition("finance"));
 
-        return args -> employeeList.forEach((Employee emp) -> log.info("Preloading " + repository.save(emp)));
+            log.info("Inserting Developers");
+            //;
+            createNEmployees(10).forEach(e -> employeeRepository.save(e));
+        }
     }
 }

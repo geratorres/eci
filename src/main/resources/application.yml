@@ -1,0 +1,14 @@
+spring:
+    jpa:
+        hibernate:
+            ddl-auto: update
+        generate-ddl: true
+        #database-platform: org.hibernate.dialect.MySQL8Dialect
+    datasource:
+        #driver-class-name: com.mysql.jdbc.Driver
+        url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/eci_db
+        username: eci-user
+        password: password
+
+bootstrapping:
+    data: true

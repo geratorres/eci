@@ -1,50 +1,36 @@
 package com.encora.eci.controllers;
 
-import com.encora.eci.entities.Employee;
+import com.encora.eci.dtos.EmployeeBasicDto;
 import com.encora.eci.services.EmployeeService;
-import com.encora.eci.util.ResponseMessages;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
-
-import javax.servlet.http.HttpServletResponse;
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+@RequestMapping(value = "/employees")
 @RestController
 public class EmployeeController {
 
     @Autowired
     private EmployeeService employeeService;
 
-    @GetMapping("/employees")
-    public List<Employee> getEmployee(
+    @GetMapping("/search")
+    public List<EmployeeBasicDto> search(
             @RequestParam(required = false) String firstName,
             @RequestParam(required = false) String lastName,
-            @RequestParam(required = false) String position
+            @RequestParam(required = false) String positionName
     ) {
-        return employeeService.findEmployee(firstName, lastName, position);
+        return employeeService.search(firstName, lastName, positionName);
     }
 
-    @GetMapping("/employees/{employeeNumber}")
-    public Employee getEmployee(@PathVariable Long employeeNumber/*, HttpServletResponse response*/) {
-        Employee employee = employeeService.findById(employeeNumber);
+    @GetMapping("/{id}")
+    public EmployeeBasicDto one(@PathVariable Long id/*, HttpServletResponse response*/) {
 
-        if (employee == null) {
-            //response.setStatus(HttpStatus.NO_CONTENT.value());
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND /*, ResponseMessages.EMPLOYEE_NOT_FOUND_MESSAGE.value()*/);
-        }
-
-        return employee;
+        return employeeService.findById(id);
     }
 
-    @GetMapping("/employees/birthday")
-    public Map<String, List<Employee>> getBirthdayInfo() {
+    @GetMapping("/birthday-info")
+    public Map<String, List<EmployeeBasicDto>> getBirthdayInfo() {
         return employeeService.getBirthdayInfo();
     }
-
 }

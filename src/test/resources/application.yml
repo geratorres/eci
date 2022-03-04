@@ -1,0 +1,6 @@
+spring:
+  datasource:
+    url: jdbc:tc:mysql:5.7.34:////integration_db
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+bootstrapping:
+  data: false

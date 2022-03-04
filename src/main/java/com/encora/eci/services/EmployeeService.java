@@ -1,13 +1,17 @@
 package com.encora.eci.services;
 
-import com.encora.eci.entities.Employee;
-
+import com.encora.eci.dtos.EmployeeBasicDto;
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
 
+@Transactional
 public interface EmployeeService {
 
-    Employee findById(Long employeeNumber);
-    Map<String, List<Employee>> getBirthdayInfo();
-    List<Employee> findEmployee(String firstName, String lastName, String position);
+    EmployeeBasicDto findById(long employeeNumber);
+
+    Map<String, List<EmployeeBasicDto>> getBirthdayInfo();
+
+    List<EmployeeBasicDto> search(String firstName, String lastName, String positionName);
+
 }
